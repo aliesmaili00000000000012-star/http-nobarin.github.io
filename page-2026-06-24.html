@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سفارش میوه</title>
+    <script src="https://developer.eitaa.com/eitaa-web-app.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Tahoma', Arial, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        .header h1 {
+            font-size: 1.8rem;
+            color: #2c3e50;
+        }
+        .header .emoji {
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 5px;
+        }
+        .header p {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        .form-group {
+            margin: 15px 0;
+        }
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+            font-size: 0.95rem;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: border 0.3s;
+            outline: none;
+            background: #fafafa;
+        }
+        .form-group input:focus {
+            border-color: #27ae60;
+            background: white;
+        }
+        .section-title {
+            font-weight: bold;
+            color: #2c3e50;
+            margin: 20px 0 15px 0;
+            font-size: 1.1rem;
+            border-right: 4px solid #27ae60;
+            padding-right: 10px;
+        }
+        .fruit-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #f8f9fa;
+            padding: 10px 15px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            border: 2px solid transparent;
+        }
+        .fruit-item:hover {
+            background: #eafaf1;
+            border-color: #27ae60;
+        }
+        .fruit-item .fruit-name {
+            font-weight: bold;
+            color: #2c3e50;
+            flex: 1;
+        }
+        .fruit-item .fruit-emoji {
+            font-size: 1.5rem;
+            margin-left: 10px;
+        }
+        .fruit-item .qty-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .fruit-item .qty-control button {
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .fruit-item .qty-control .btn-minus {
+            background: #fdebd0;
+            color: #e74c3c;
+        }
+        .fruit-item .qty-control .btn-minus:hover {
+            background: #fadbd8;
+        }
+        .fruit-item .qty-control .btn-plus {
+            background: #d5f5e3;
+            color: #27ae60;
+        }
+        .fruit-item .qty-control .btn-plus:hover {
+            background: #a9dfbf;
+        }
+        .fruit-item .qty-control .qty-display {
+            width: 35px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #2c3e50;
+        }
+        .total-section {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 12px;
+            margin: 20px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .total-section .label {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        .total-section .total-weight {
+            font-weight: bold;
+            font-size: 1.3rem;
+            color: #2c3e50;
+        }
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+        .btn-submit {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+            box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
+        }
+        .btn-submit:hover:not(:disabled) {
+            transform: scale(1.02);
+        }
+        .btn-submit:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .btn-clear {
+            background: #ecf0f1;
+            color: #7f8c8d;
+        }
+        .btn-clear:hover {
+            background: #e0e0e0;
+        }
+        .btn-close {
+            background: #e74c3c;
+            color: white;
+        }
+        .btn-close:hover {
+            background: #c0392b;
+        }
+        #status {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 12px;
+            display: none;
+            text-align: center;
+            font-size: 0.95rem;
+        }
+        #status.show {
+            display: block;
+        }
+        #status.success {
+            background: #d5f5e3;
+            color: #1e8449;
+            border: 2px solid #82e0aa;
+        }
+        #status.error {
+            background: #fdebd0;
+            color: #a04000;
+            border: 2px solid #f5b7b1;
+        }
+        .order-summary {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+            display: none;
+            border: 2px solid #27ae60;
+        }
+        .order-summary.show {
+            display: block;
+        }
+        .order-summary h4 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        .order-summary .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid #ecf0f1;
+            font-size: 0.95rem;
+        }
+        .order-summary .summary-item:last-child {
+            border-bottom: none;
+        }
+        .order-summary .summary-total {
+            font-weight: bold;
+            color: #27ae60;
+            font-size: 1.1rem;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 2px solid #27ae60;
+            display: flex;
+            justify-content: space-between;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #bdc3c7;
+            font-size: 0.75rem;
+        }
+        .admin-link {
+            display: block;
+            text-align: center;
+            margin-top: 15px;
+            color: #3498db;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        .admin-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <span class="emoji">🍉</span>
+        <h1>سفارش میوه</h1>
+        <p>میوه‌های مورد نظرت رو انتخاب کن</p>
+    </div>
+
+    <div class="form-group">
+        <label>👤 نام و نام خانوادگی</label>
+        <input type="text" id="customerName" placeholder="مثال: علی محمدی">
+    </div>
+    <div class="form-group">
+        <label>📱 شماره تماس</label>
+        <input type="text" id="customerPhone" placeholder="مثال: ۰۹۱۲۳۴۵۶۷۸۹">
+    </div>
+
+    <div class="section-title">🍎 میوه‌های موجود</div>
+    <div id="fruitList"></div>
+
+    <div class="total-section">
+        <span class="label">🧺 مجموع سفارش:</span>
+        <span class="total-weight" id="totalWeight">۰ کیلو</span>
+    </div>
+
+    <button class="btn btn-submit" id="submitBtn">✅ ثبت سفارش</button>
+    <button class="btn btn-clear" id="clearBtn">🗑️ پاک کردن</button>
+    <button class="btn btn-close" onclick="window.Eitaa?.WebApp.close()">❌ بستن</button>
+
+    <div class="order-summary" id="orderSummary">
+        <h4>📋 خلاصه سفارش</h4>
+        <div id="summaryItems"></div>
+        <div class="summary-total">
+            <span>جمع کل:</span>
+            <span id="summaryTotal">۰ کیلو</span>
+        </div>
+    </div>
+
+    <div id="status"></div>
+    
+    <!-- لینک به صفحه مدیریت -->
+    <a href="admin.html" class="admin-link">📊 مشاهده سفارش‌ها (مدیریت)</a>
+
+    <div class="footer">🍇 میوه فروشی | سفارش‌های تازه</div>
+</div>
+
+<script>
+    // ===== لیست میوه‌ها =====
+    const fruits = [
+        { id: 1, name: 'سیب', emoji: '🍎' },
+        { id: 2, name: 'پرتقال', emoji: '🍊' },
+        { id: 3, name: 'موز', emoji: '🍌' },
+        { id: 4, name: 'هندوانه', emoji: '🍉' },
+        { id: 5, name: 'انگور', emoji: '🍇' },
+        { id: 6, name: 'توت فرنگی', emoji: '🍓' },
+        { id: 7, name: 'گیلاس', emoji: '🍒' },
+        { id: 8, name: 'هلو', emoji: '🍑' },
+        { id: 9, name: 'کیوی', emoji: '🥝' },
+        { id: 10, name: 'لیمو', emoji: '🍋' }
+    ];
+
+    let selections = {};
+    fruits.forEach(f => selections[f.id] = 0);
+
+    const fruitListEl = document.getElementById('fruitList');
+    const totalWeightEl = document.getElementById('totalWeight');
+    const submitBtn = document.getElementById('submitBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const statusEl = document.getElementById('status');
+    const orderSummary = document.getElementById('orderSummary');
+    const summaryItems = document.getElementById('summaryItems');
+    const summaryTotal = document.getElementById('summaryTotal');
+    const customerName = document.getElementById('customerName');
+    const customerPhone = document.getElementById('customerPhone');
+
+    function renderFruits() {
+        fruitListEl.innerHTML = '';
+        fruits.forEach(fruit => {
+            const div = document.createElement('div');
+            div.className = 'fruit-item';
+            div.innerHTML = `
+                <span class="fruit-emoji">${fruit.emoji}</span>
+                <span class="fruit-name">${fruit.name}</span>
+                <div class="qty-control">
+                    <button class="btn-minus" data-id="${fruit.id}">−</button>
+                    <span class="qty-display" id="qty-${fruit.id}">${selections[fruit.id]}</span>
+                    <button class="btn-plus" data-id="${fruit.id}">+</button>
+                </div>
+            `;
+            fruitListEl.appendChild(div);
+        });
+
+        document.querySelectorAll('.btn-minus').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const id = parseInt(this.dataset.id);
+                if (selections[id] > 0) {
+                    selections[id]--;
+                    updateUI(id);
+                }
+            });
+        });
+
+        document.querySelectorAll('.btn-plus').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const id = parseInt(this.dataset.id);
+                selections[id]++;
+                updateUI(id);
+            });
+        });
+    }
+
+    function updateUI(fruitId) {
+        const qtyEl = document.getElementById(`qty-${fruitId}`);
+        if (qtyEl) qtyEl.textContent = selections[fruitId];
+
+        let total = 0;
+        for (let id in selections) {
+            total += selections[id];
+        }
+
+        totalWeightEl.textContent = `${total} کیلو`;
+
+        const hasOrder = total > 0 && customerName.value.trim() && customerPhone.value.trim();
+        submitBtn.disabled = !hasOrder;
+
+        updateSummary();
+    }
+
+    function updateSummary() {
+        const items = [];
+        let total = 0;
+
+        for (let id in selections) {
+            if (selections[id] > 0) {
+                const fruit = fruits.find(f => f.id == id);
+                if (fruit) {
+                    items.push({ name: fruit.name, emoji: fruit.emoji, qty: selections[id] });
+                    total += selections[id];
+                }
+            }
+        }
+
+        if (items.length > 0) {
+            orderSummary.classList.add('show');
+            summaryItems.innerHTML = items.map(item =>
+                `<div class="summary-item">
+                    <span>${item.emoji} ${item.name}</span>
+                    <span>${item.qty} کیلو</span>
+                </div>`
+            ).join('');
+            summaryTotal.textContent = `${total} کیلو`;
+        } else {
+            orderSummary.classList.remove('show');
+        }
+    }
+
+    function showStatus(message, type) {
+        statusEl.textContent = message;
+        statusEl.className = 'show ' + type;
+    }
+
+    function hideStatus() {
+        statusEl.className = '';
+        statusEl.textContent = '';
+    }
+
+    // ===== ذخیره سفارش در LocalStorage =====
+    function saveOrder(orderData) {
+        // دریافت سفارش‌های قبلی
+        let orders = JSON.parse(localStorage.getItem('fruit_orders') || '[]');
+        
+        // اضافه کردن سفارش جدید
+        orders.push(orderData);
+        
+        // ذخیره کردن
+        localStorage.setItem('fruit_orders', JSON.stringify(orders));
+        
+        return orders;
+    }
+
+    // ===== ثبت سفارش =====
+    submitBtn.addEventListener('click', function() {
+        const name = customerName.value.trim();
+        const phone = customerPhone.value.trim();
+
+        if (!name || !phone) {
+            showStatus('❌ لطفاً نام و شماره تماس را وارد کنید', 'error');
+            return;
+        }
+
+        const orderItems = [];
+        let total = 0;
+        for (let id in selections) {
+            if (selections[id] > 0) {
+                const fruit = fruits.find(f => f.id == id);
+                if (fruit) {
+                    orderItems.push({ name: fruit.name, emoji: fruit.emoji, qty: selections[id] });
+                    total += selections[id];
+                }
+            }
+        }
+
+        if (total === 0) {
+            showStatus('❌ حداقل یک میوه انتخاب کنید', 'error');
+            return;
+        }
+
+        // ===== ساخت شیء سفارش =====
+        const now = new Date();
+        const orderData = {
+            id: Date.now(),
+            name: name,
+            phone: phone,
+            items: orderItems,
+            total: total,
+            date: now.toLocaleDateString('fa-IR'),
+            time: now.toLocaleTimeString('fa-IR'),
+            timestamp: now.toISOString()
+        };
+
+        // ===== ذخیره در LocalStorage =====
+        saveOrder(orderData);
+
+        // ===== نمایش پیام موفقیت =====
+        showStatus('✅ سفارش شما با موفقیت ثبت شد!', 'success');
+        
+        if (window.Eitaa) {
+            window.Eitaa.WebApp.showAlert('✅ سفارش شما با موفقیت ثبت شد!');
+        }
+
+        // ===== پاک کردن فرم =====
+        setTimeout(() => {
+            for (let id in selections) {
+                selections[id] = 0;
+            }
+            renderFruits();
+            updateUI();
+            orderSummary.classList.remove('show');
+            submitBtn.disabled = true;
+            hideStatus();
+        }, 3000);
+    });
+
+    // ===== پاک کردن =====
+    clearBtn.addEventListener('click', function() {
+        for (let id in selections) {
+            selections[id] = 0;
+        }
+        renderFruits();
+        updateUI();
+        hideStatus();
+        orderSummary.classList.remove('show');
+        submitBtn.disabled = true;
+    });
+
+    customerName.addEventListener('input', updateUI);
+    customerPhone.addEventListener('input', updateUI);
+
+    renderFruits();
+    updateUI();
+
+    if (window.Eitaa) {
+        console.log('✅ برنامک به ایتا متصل شد!');
+    }
+</script>
+</body>
+</html>
